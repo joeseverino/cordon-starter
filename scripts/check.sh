@@ -3,7 +3,7 @@
 # (`--ci`), you, and an AI all run this exact script, so local and CI can't drift.
 #
 #   (no flag)   full   shellcheck + contract drift + schema conformance
-#   --fast             shellcheck + contract drift   (skips schema/npm; inner loop)
+#   --fast             shellcheck + contract drift   (skips conformance; inner loop)
 #   --ci               shellcheck + schema conformance (no toolchain; ci.yml runs this)
 #   --env              report environment wiring; run no checks
 #   -h, --help         this help
@@ -12,7 +12,7 @@
 #                       full  --fast  --ci
 #   lint (shellcheck)     ✓      ✓      ✓
 #   contract drift*       ✓      ✓      —    (*re-emits --describe; needs $TOOLS_HOME)
-#   schema conformance    ✓      —      ✓
+#   schema conformance**  ✓      —      ✓    (**validates via cordon's own harness)
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -32,8 +32,12 @@ fail=0
 
 # ---- single definitions every mode and CI share ----------------------------
 SHELLCHECK_TARGETS=(bin/* scripts/*.sh .githooks/*)
-SCHEMA="schema/cordon-v4.json"
-cordon_harness="${CORDON_HOME:-${ASSETS_HOME:+$ASSETS_HOME/cordon}}/conformance/validate.mjs"
+# Reference cordon itself, never a vendored copy. Local: $CORDON_HOME from
+# ~/.zshrc (falls back to $ASSETS_HOME/cordon). CI: the workflow checks out the
+# public cordon repo and points $CORDON_HOME at it. Either way the schema AND
+# the validator are cordon's real, current files.
+CORDON_HOME="${CORDON_HOME:-${ASSETS_HOME:+$ASSETS_HOME/cordon}}"
+HARNESS="${CORDON_HOME:+$CORDON_HOME/conformance/validate.mjs}"
 
 run_shellcheck() {
     echo "== shellcheck =="
@@ -63,27 +67,20 @@ run_drift() {
 }
 
 run_conformance() {
-    echo "== schema conformance =="
+    echo "== schema conformance (cordon's harness) =="
     local golden
-    if [[ -f "$cordon_harness" ]]; then
-        for golden in contract/*.json; do
-            [[ -f "$golden" ]] || continue
-            if node "$cordon_harness" "$golden"; then echo "  ok: $golden"; else fail=1; fi
-        done
-    elif command -v ajv >/dev/null 2>&1; then
-        for golden in contract/*.json; do
-            [[ -f "$golden" ]] || continue
-            if ajv validate --spec=draft2020 -s "$SCHEMA" -d "$golden" >/dev/null 2>&1; then
-                echo "  ok: $golden (vendored schema)"
-            else
-                echo "  INVALID: $golden"; fail=1
-            fi
-        done
-    elif [[ "$MODE" == ci ]]; then
-        echo "  FAIL — --ci needs ajv or the cordon harness to validate" >&2; fail=1
-    else
-        echo "  skipped — no cordon harness, no ajv (CI validates against $SCHEMA)"
+    if [[ -z "$HARNESS" || ! -f "$HARNESS" ]]; then
+        if [[ "$MODE" == ci ]]; then
+            echo "  FAIL — cordon harness not found (\$CORDON_HOME=${CORDON_HOME:-<unset>})" >&2; fail=1
+        else
+            echo "  skipped — \$CORDON_HOME not reachable (${CORDON_HOME:-<unset>}); CI validates via cordon"
+        fi
+        return
     fi
+    for golden in contract/*.json; do
+        [[ -f "$golden" ]] || continue
+        node "$HARNESS" "$golden" || fail=1   # harness prints ✓/✗ and sets the exit code
+    done
 }
 
 run_env() {
@@ -91,11 +88,10 @@ run_env() {
     _have() { command -v "$1" >/dev/null 2>&1 && echo yes || echo no; }
     echo "  TOOLS_HOME            : ${TOOLS_HOME:-<unset>}"
     echo "  describe.sh reachable : $([[ -f "${TOOLS_HOME:-}/lib/describe.sh" ]] && echo yes || echo no)"
-    echo "  ASSETS_HOME           : ${ASSETS_HOME:-<unset>}"
+    echo "  CORDON_HOME           : ${CORDON_HOME:-<unset>}"
+    echo "  cordon harness        : $([[ -n "$HARNESS" && -f "$HARNESS" ]] && echo yes || echo no)"
     echo "  shellcheck            : $(_have shellcheck)"
     echo "  node                  : $(_have node)"
-    echo "  ajv                   : $(_have ajv)"
-    echo "  cordon harness        : $([[ -f "$cordon_harness" ]] && echo yes || echo no)"
     echo "  hooks (core.hooksPath): $(git config core.hooksPath 2>/dev/null || echo '<unset — run scripts/setup-hooks.sh>')"
 }
 
