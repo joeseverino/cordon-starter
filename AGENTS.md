@@ -86,19 +86,48 @@ deliberately with `ALLOW_MAIN_COMMIT=1` / `git … --no-verify`.
 
 ## Repo checks config (`cordon.checks.json`)
 
-cordon's repo-level checks (run via `$CORDON_HOME/checks/run.mjs`, the
-`run_checks` step) take an optional **`cordon.checks.json`** at the repo root,
-keyed by check id. This template ships one with its `$schema` wired to the
-published, *derived* schema — so your editor autocompletes every key, documents
-it on hover, and flags typos and wrong types as you type. No knob to memorize.
+cordon's **checks engine** (`$CORDON_HOME/checks/run.mjs`, the `run_checks` step)
+runs two kinds of check over the repo through one loop:
 
-- See every available check and its options: `node "$CORDON_HOME/checks/run.mjs" --list`
-  (or open `cordon.checks.json` and let the schema prompt you).
+- **invariants** — cordon's built-in, portable rules (no secrets/build output
+  tracked, Actions pinned, internal links resolve, …). They run with zero config.
+- **commands** — *your* repo's own spawned specs (a test suite, a type check, a
+  bespoke audit), declared as data in `cordon.checks.json` `commands[]`. The spec
+  code stays in your repo; the engine just runs it and folds it into one verdict.
+
+The whole flow at a glance — two kinds in, capability gate, one verdict out — is
+the [checks-engine diagram](https://github.com/joeseverino/cordon/blob/main/checks/README.md)
+in cordon's test-suite docs.
+
+It takes an optional **`cordon.checks.json`** at the repo root. This template
+ships one with its `$schema` wired to the published, *derived* schema — so your
+editor autocompletes every key (including each `commands[]` entry), documents it
+on hover, and flags typos as you type. No shape to memorize.
+
+**Most checks are off until the repo earns them.** Each check declares the
+capabilities it `requires` (`git` / `macos` / `ci` / `built-dir` / any `<binary>`
+like `playwright`, plus `!cap` to negate); the engine detects what's present and
+**skips fail-soft** what isn't. So a `playwright` command runs only where
+playwright is installed, a `built-dir` check only after a build — the default
+posture is lean, and you opt in by adding the capability, not by flipping a flag.
+
+- See what applies to this repo: `node "$CORDON_HOME/checks/run.mjs" --list`
+  (or open `cordon.checks.json` and let the schema prompt you). `--json` is the
+  agent contract; `--phase pre-build|build|post-build` runs one phase.
 - The `idempotence` knob ships **off** (`"command": null`). When you add a
   build/generate step, set it — e.g. `"command": "scripts/check.sh --fast"` — and
   the check fails if that command ever dirties the worktree.
-- Omit a key to use a check's defaults; absent file → all defaults. The *rule* is
-  cordon's, the *parameters* are yours.
+- Add a spec as a command (every spec carries an honest `effect`, like a tool):
+
+  ```json
+  "commands": [
+    { "id": "types", "name": "Type check", "effect": "read",
+      "requires": ["tsc"], "exec": { "cmd": "npx", "args": ["tsc", "--noEmit"] } }
+  ]
+  ```
+
+- Omit a key to use a check's defaults; absent file → all defaults. The *rules and
+  the engine* are cordon's; the *parameters and the specs* are yours.
 
 ## Environment it assumes
 

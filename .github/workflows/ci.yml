@@ -39,3 +39,10 @@ jobs:
         env:
           CORDON_HOME: ${{ github.workspace }}/.cordon
         run: scripts/check.sh --ci
+
+      # Clean log above; on failure, surface the checks engine's actionable
+      # report (one row per failure, fix + rerun) in the run summary. The same
+      # verdict is available as `node "$CORDON_HOME/checks/run.mjs" --json` for AI.
+      - name: Surface the checks report on failure
+        if: failure()
+        run: '[ -f .cordon-checks-report.md ] && cat .cordon-checks-report.md >> "$GITHUB_STEP_SUMMARY" || true'

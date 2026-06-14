@@ -46,6 +46,11 @@ in the vault. This is the checklist `cordon-starter` exists to satisfy.
 - [ ] CI runs `scripts/check.sh --ci` — the same gate the hook + you run, so CI
       and local can't drift: shellcheck + schema conformance on every committed
       contract. (Drift needs `$TOOLS_HOME`, so it's a local-only step.)
+- [ ] Repo invariants run through cordon's **checks engine** (`run_checks`,
+      `$CORDON_HOME/checks/run.mjs` — referenced, never vendored): built-in
+      invariants plus this repo's own `commands[]` specs, one verdict. Each check
+      is capability-gated (`requires` git/macos/built-dir/`<binary>`), so it's
+      lean by default and skips fail-soft what the environment can't satisfy.
 - [ ] Add language lint/scanners to match the repo's narrative:
       - Security-focused (plugin, scanner, detection engine) → visible scanner
         (Semgrep for PHP/WordPress, CodeQL where supported) **and** a badge.
