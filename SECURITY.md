@@ -9,7 +9,7 @@ profile. Don't file a public issue for a vulnerability.
 ## What this scaffold gives a repo
 
 - **CI conformance gate** — the emitted Cordon contract must validate against
-  the published schema on every push and PR.
+  the vendored schema (`schema/cordon-v4.json`) on every push and PR.
 - **Branch protection** (`scripts/setup-governance.sh`) — `main` merges require a
   green `ci` check and resolved conversations; force-push and deletion are off.
 - **Repo security settings** — vulnerability alerts and automated security fixes
