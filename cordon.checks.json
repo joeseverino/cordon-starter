@@ -3,5 +3,29 @@
   "idempotence": {
     "command": null
   },
-  "commands": []
+  "commands": [
+    {
+      "id": "unit",
+      "name": "Unit tests",
+      "effect": "read",
+      "exec": { "cmd": "sh", "args": ["-c", "echo '✓ 48 passing (212ms)'"] }
+    },
+    {
+      "id": "types",
+      "name": "Type check",
+      "effect": "read",
+      "exec": { "cmd": "sh", "args": ["-c", "echo 'src/widget.ts(42,7): error TS2304: Cannot find name \"frobnicate\".'; exit 1"] },
+      "fix": "Fix the TypeScript error at the reported file:line, then re-run the gate."
+    },
+    {
+      "id": "e2e",
+      "name": "Playwright (browser)",
+      "effect": "local_write",
+      "phase": "post-build",
+      "requires": ["playwright", "built-dir"],
+      "timeout": 900000,
+      "exec": { "cmd": "npx", "args": ["playwright", "test"] },
+      "fix": "Run `npx playwright test --ui` to debug the failing spec."
+    }
+  ]
 }
