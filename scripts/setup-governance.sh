@@ -22,37 +22,40 @@
 #   required-check defaults to "ci" (must match the ci.yml job name)
 set -euo pipefail
 
+# shellcheck source=scripts/_lib.sh
+source "$(dirname "$0")/_lib.sh"   # in-repo presentation; no external dependency
+
 # ── preflight ────────────────────────────────────────────────────────────────
-command -v gh >/dev/null 2>&1 || { echo "error: gh CLI not installed" >&2; exit 1; }
-gh auth token   >/dev/null 2>&1 || { echo "error: gh not authenticated — run: gh auth login" >&2; exit 1; }
+command -v gh >/dev/null 2>&1 || { bad "gh CLI not installed" >&2; exit 1; }
+gh auth token   >/dev/null 2>&1 || { bad "gh not authenticated — run: gh auth login" >&2; exit 1; }
 
 REPO="${1:-}"
 [[ -n "$REPO" ]] || REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || true)"
-[[ -n "$REPO" ]] || { echo "error: no repo — pass owner/repo or run inside a gh repo" >&2; exit 1; }
+[[ -n "$REPO" ]] || { bad "no repo — pass owner/repo or run inside a gh repo" >&2; exit 1; }
 CHECK="${2:-ci}"
 
 # Confirm access and read live facts — never assume the branch is "main".
 BRANCH="$(gh api "repos/$REPO" -q .default_branch 2>/dev/null || true)"
-[[ -n "$BRANCH" ]] || { echo "error: repo not found or no access: $REPO" >&2; exit 1; }
+[[ -n "$BRANCH" ]] || { bad "repo not found or no access: $REPO" >&2; exit 1; }
 VISIBILITY="$(gh api "repos/$REPO" -q .visibility 2>/dev/null || echo unknown)"
 
-echo "Repo:           $REPO"
-echo "Default branch: $BRANCH"
-echo "Visibility:     $VISIBILITY"
-echo "Required check: $CHECK"
-echo
+banner "governance" "branch protection + security — verified, not assumed"
+section "target"
+printf '   %s%-15s%s %s\n' "$D" "repo" "$R" "$REPO"
+printf '   %s%-15s%s %s\n' "$D" "default branch" "$R" "$BRANCH"
+printf '   %s%-15s%s %s\n' "$D" "visibility" "$R" "$VISIBILITY"
+printf '   %s%-15s%s %s\n' "$D" "required check" "$R" "$CHECK"
 
 # The required check is a job NAME. If it doesn't exist, protection will wedge
 # every PR (a check that never reports). Warn early when we can see the workflow.
 script_dir="$(cd "$(dirname "$0")/.." && pwd)"
 if [[ -f "$script_dir/.github/workflows/ci.yml" ]] \
    && ! grep -qE "^[[:space:]]+${CHECK}:[[:space:]]*$" "$script_dir/.github/workflows/ci.yml"; then
-    echo "warning: no job named '$CHECK' in .github/workflows/ci.yml — a required" >&2
-    echo "         check that never reports will block every merge." >&2
-    echo
+    warn "no job named '$CHECK' in ci.yml — a required check that never reports blocks every merge" >&2
 fi
 
 # ── branch protection ────────────────────────────────────────────────────────
+section "branch protection"
 protection_payload="$(cat <<JSON
 {
   "required_status_checks": { "strict": true, "contexts": ["$CHECK"] },
@@ -77,41 +80,41 @@ if [[ $protect_rc -eq 0 ]]; then
         2>/dev/null || true)"
     read -r got_ctx got_conv got_admins <<<"$verify"
     if [[ ",$got_ctx," == *",$CHECK,"* && "$got_conv" == "true" && "$got_admins" == "false" ]]; then
-        echo "  branch protection: on  (checks=[$got_ctx] conversations_resolved=yes admin_bypass=yes)"
+        pass "on  (checks=[$got_ctx] conversations_resolved=yes admin_bypass=yes)"
     else
-        echo "  branch protection: applied but verification mismatched — checks=[$got_ctx] conv=$got_conv enforce_admins=$got_admins" >&2
+        bad "applied but verification mismatched — checks=[$got_ctx] conv=$got_conv enforce_admins=$got_admins" >&2
         exit 1
     fi
 elif printf '%s' "$perr" | grep -qiE "Upgrade to GitHub Pro|make this repository public"; then
-    echo "  branch protection: SKIPPED — needs a public repo or GitHub Pro (this repo is $VISIBILITY)."
-    echo "      make public:  gh repo edit $REPO --visibility public --accept-visibility-change-consequences"
-    echo "      or upgrade to GitHub Pro, then re-run this script."
-    echo "      until then, 'never commit to $BRANCH' holds by discipline, not the platform."
+    skip "SKIPPED — needs a public repo or GitHub Pro (this repo is $VISIBILITY)"
+    note "make public:  gh repo edit $REPO --visibility public --accept-visibility-change-consequences"
+    note "or upgrade to GitHub Pro, then re-run this script."
+    note "until then, 'never commit to $BRANCH' holds by discipline, not the platform."
 else
-    echo "  branch protection: FAILED" >&2
-    printf '      %s\n' "$perr" >&2
+    bad "FAILED" >&2
+    note "$perr" >&2
     exit 1
 fi
 
 # ── security settings (free on private repos) ────────────────────────────────
+section "security"
 sec_fail=0
 if gh api -X PUT "repos/$REPO/vulnerability-alerts" >/dev/null 2>&1; then
-    echo "  vulnerability alerts: on"
+    pass "vulnerability alerts: on"
 else
-    echo "  vulnerability alerts: FAILED — token likely missing the 'repo' scope (gh auth refresh -s repo)" >&2
+    bad "vulnerability alerts: FAILED — token likely missing the 'repo' scope (gh auth refresh -s repo)" >&2
     sec_fail=1
 fi
 if gh api -X PUT "repos/$REPO/automated-security-fixes" >/dev/null 2>&1; then
-    echo "  automated security fixes: on"
+    pass "automated security fixes: on"
 else
-    echo "  automated security fixes: FAILED — token likely missing the 'repo' scope" >&2
+    bad "automated security fixes: FAILED — token likely missing the 'repo' scope" >&2
     sec_fail=1
 fi
 
-echo
 if [[ $sec_fail -eq 0 ]]; then
-    echo "Done."
+    printf '\n%s%s✓ governance applied%s\n' "$B" "$GR" "$R"
 else
-    echo "Done with errors — see above." >&2
+    bad "done with errors — see above" >&2
     exit 1
 fi

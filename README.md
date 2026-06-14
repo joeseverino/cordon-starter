@@ -46,7 +46,8 @@ commit to `main`. See [AGENTS.md](AGENTS.md).
 | `contract/example-tool.json` | the committed golden contract (emitted, never hand-edited) |
 | `.github/workflows/ci.yml` | shellcheck + Cordon schema conformance — the required `ci` check |
 | `scripts/try.sh` | smoke test — run it to watch the contract work end to end |
-| `scripts/check.sh` | **the gate** — pre-push, CI (`--ci`), and you all run it; `--fast`/`--env` tiers |
+| `scripts/check.sh` | **the gate** — pre-push, CI (`--ci`), and you all run it. Compact by default; `--verbose` expands, `--json` for AI; `--fast`/`--env` tiers |
+| `scripts/_lib.sh` | in-repo presentation (palette + `banner`/`step`/`run`); sourced by `try.sh`/`check.sh`, no external dep |
 | `scripts/gen-readme.mjs` | renders the README CLI reference from `contract/*.json` — the README *is* a render of the contract (zero deps, drift-gated) |
 | `.githooks/` + `scripts/setup-hooks.sh` | local guardrails: `pre-commit` blocks `main`, `commit-msg` blocks AI attribution, `pre-push` runs the gate |
 | `scripts/setup-governance.sh` | GitHub-side branch protection + security via `gh api` |

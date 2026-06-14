@@ -80,6 +80,25 @@ deliberately with `ALLOW_MAIN_COMMIT=1` / `git … --no-verify`.
   `scripts/check.sh` before pushing (`--fast` for a quick loop): it re-emits
   each tool's `--describe` and diffs it against the committed `contract/*.json`.
   Regenerate and commit the golden when the surface legitimately changes.
+- `scripts/check.sh` prints a compact line per check by default; add `--verbose`
+  for the expanded view (headers + sub-tool output) or **`--json`** for a
+  machine-readable result object — prefer `--json` when consuming it as an agent.
+
+## Repo checks config (`cordon.checks.json`)
+
+cordon's repo-level checks (run via `$CORDON_HOME/checks/run.mjs`, the
+`run_checks` step) take an optional **`cordon.checks.json`** at the repo root,
+keyed by check id. This template ships one with its `$schema` wired to the
+published, *derived* schema — so your editor autocompletes every key, documents
+it on hover, and flags typos and wrong types as you type. No knob to memorize.
+
+- See every available check and its options: `node "$CORDON_HOME/checks/run.mjs" --list`
+  (or open `cordon.checks.json` and let the schema prompt you).
+- The `idempotence` knob ships **off** (`"command": null`). When you add a
+  build/generate step, set it — e.g. `"command": "scripts/check.sh --fast"` — and
+  the check fails if that command ever dirties the worktree.
+- Omit a key to use a check's defaults; absent file → all defaults. The *rule* is
+  cordon's, the *parameters* are yours.
 
 ## Environment it assumes
 
