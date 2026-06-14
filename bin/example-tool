@@ -24,11 +24,16 @@ describe_spec() {
     desc_example "example-tool -n widget"  -- "dry run"
 }
 
+# One dispatch line, for leaf and subcommand tools alike: it renders -h/--help
+# and --describe from describe_spec and exits, deriving the rest from the spec's
+# shape. This tool declares no desc_cmd, so it's a leaf — the intercept claims
+# only those meta-flags and hands back, leaving its own options/positionals to
+# the parser below. (See "$TOOLS_HOME/lib/describe.sh".)
+desc_help_intercept "$@"
+
 DRY_RUN=0
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --describe)   describe_emit "$@"; exit 0 ;;
-        -h|--help)    usage; exit 0 ;;
         -n|--dry-run) DRY_RUN=1; shift ;;
         --)           shift; break ;;
         -*)           die "usage" "unknown option: $1" 2 ;;
