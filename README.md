@@ -13,6 +13,9 @@ machinery) are *sourced from your toolchain*, not vendored.
 
 ## Start a new repo from it
 
+Quickest path: click **[Use this template](https://github.com/joeseverino/cordon-starter/generate)**
+on GitHub for a fresh repo with clean history. Or copy the tree locally and prune:
+
 ```sh
 cp -R "$PROJECTS_HOME/cordon-starter" "$PROJECTS_HOME/<repo>"
 cd "$PROJECTS_HOME/<repo>"
