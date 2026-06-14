@@ -28,7 +28,10 @@ jobs:
 
       - name: Provision the gate's tools
         run: |
-          sudo apt-get update -qq
+          # `|| true`: don't let a broken preinstalled third-party apt repo
+          # (e.g. packages.microsoft.com 403s its signing key) fail the gate —
+          # shellcheck comes from the always-present Ubuntu archive.
+          sudo apt-get update -qq || true
           sudo apt-get install -y shellcheck
           npm --prefix .cordon ci
 
