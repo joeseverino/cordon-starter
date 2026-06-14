@@ -34,16 +34,26 @@ for tool in bin/*; do
 done
 
 echo "== schema conformance =="
-# Reuse the canonical cordon harness if it's checked out locally — don't vendor
-# a copy. CI validates the same contracts against the published schema.
+# Prefer the canonical cordon harness if it's checked out locally; otherwise
+# validate against the vendored frozen schema with ajv. Either way the contract
+# is checked against cordon-v4 — CI does the same with the vendored schema.
 cordon="${CORDON_HOME:-${ASSETS_HOME:-$HOME/Documents/Code/Assets}/cordon}"
 if [[ -f "$cordon/conformance/validate.mjs" ]]; then
     for golden in contract/*.json; do
         [[ -f "$golden" ]] || continue
         node "$cordon/conformance/validate.mjs" "$golden" && echo "  ok: $golden" || fail=1
     done
+elif command -v ajv >/dev/null 2>&1; then
+    for golden in contract/*.json; do
+        [[ -f "$golden" ]] || continue
+        if ajv validate --spec=draft2020 -s schema/cordon-v4.json -d "$golden" >/dev/null 2>&1; then
+            echo "  ok: $golden (vendored schema)"
+        else
+            echo "  INVALID: $golden"; fail=1
+        fi
+    done
 else
-    echo "  skipped — cordon harness not at $cordon (CI validates against jseverino.com/schemas)"
+    echo "  skipped — no cordon harness, no ajv. CI validates against schema/cordon-v4.json."
 fi
 
 [[ $fail -eq 0 ]] && echo "ALL GREEN" || echo "FAILURES — fix before pushing"

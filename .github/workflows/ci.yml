@@ -23,14 +23,16 @@ jobs:
           node-version: "20"
 
       - name: Cordon contract conformance
-        # Every committed contract/*.json must validate against the published
-        # cordon-v4 schema. Drift between a tool's --describe and its golden is
-        # caught locally by scripts/check.sh before it reaches here.
+        # Validate every committed contract against the VENDORED, frozen v4
+        # schema (schema/cordon-v4.json) — no network fetch, so a copied starter
+        # never depends on a live URL or a WAF rule. Drift between a tool's
+        # --describe and its golden is caught locally by scripts/check.sh.
         run: |
-          npm i -g ajv-cli@5 ajv-formats@2
-          curl -fsSL https://jseverino.com/schemas/cordon-v4.json -o /tmp/cordon-v4.json
+          npm i -g ajv-cli@5
           shopt -s nullglob
-          for f in contract/*.json; do
+          contracts=(contract/*.json)
+          if [ ${#contracts[@]} -eq 0 ]; then echo "no contracts to validate"; exit 0; fi
+          for f in "${contracts[@]}"; do
             echo "validating $f"
-            ajv validate --spec=draft2020 -c ajv-formats -s /tmp/cordon-v4.json -d "$f"
+            ajv validate --spec=draft2020 -s schema/cordon-v4.json -d "$f"
           done
