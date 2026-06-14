@@ -1,0 +1,27 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors / agents
+.vscode/
+.idea/
+*.swp
+.claude/
+
+# Local env + logs
+.env
+.env.local
+*.log
+.logs/
+
+# Backups
+*.bak
+*.bak.*
+
+# Node — keep the lockfile, not the tree. .nosync keeps iCloud off it.
+/node_modules
+/node_modules.nosync/
+
+# Build output
+/dist/
+/build/

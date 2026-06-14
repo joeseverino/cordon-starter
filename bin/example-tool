@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# example-tool — a runnable starter command. Copy this file, rename it, and
+# rewrite describe_spec + the handler. -h and --describe both render from the
+# one describe_spec below, so the human help and the machine contract can't drift.
+set -euo pipefail
+
+# Source the canonical emit-once machinery from the zshrc-defined toolchain.
+# Passing "" as the config name means "no config profile" — help/--describe
+# must work with zero environment configured (the command-surface contract).
+# shellcheck source=/dev/null
+source "${TOOLS_HOME:?set in ~/.zshrc}/lib/init.sh" "" "$@"
+
+# The single source of truth for this tool's surface.
+describe_spec() {
+    desc_tool "example-tool" "Replace me: one line on what this tool does."
+    desc_inventory "Starter" 10
+    desc_effect read
+    desc_synopsis "example-tool [options] <name>"
+    desc_para "A runnable template. Copy this describe_spec into your real tool, declare its true effect, then implement the handler below."
+    desc_opt -n --dry-run -- "Show what would happen; write nothing"
+    desc_pos name          -- "The thing to act on"
+    desc_env CODE_HOME     -- "Read from ~/.zshrc; roots the Code tree"
+    desc_example "example-tool widget"     -- "acts on 'widget'"
+    desc_example "example-tool -n widget"  -- "dry run"
+}
+
+DRY_RUN=0
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --describe)   describe_emit "$@"; exit 0 ;;
+        -h|--help)    usage; exit 0 ;;
+        -n|--dry-run) DRY_RUN=1; shift ;;
+        --)           shift; break ;;
+        -*)           die "usage" "unknown option: $1" 2 ;;
+        *)            break ;;
+    esac
+done
+
+[[ $# -ge 1 ]] || die "usage" "example-tool <name> (try -h)" 2
+name="$1"
+
+if (( DRY_RUN )); then
+    msg "$YELLOW" "dry-run" "would act on '$name'"
+    exit 0
+fi
+msg "$GREEN" "ok" "acted on '$name'"

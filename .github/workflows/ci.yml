@@ -1,0 +1,36 @@
+name: ci
+
+# The required status check is the job name `ci` (see setup-governance.sh).
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: shellcheck bin + scripts
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y shellcheck
+          shellcheck -x bin/* scripts/*.sh
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Cordon contract conformance
+        # Every committed contract/*.json must validate against the published
+        # cordon-v4 schema. Drift between a tool's --describe and its golden is
+        # caught locally by scripts/check.sh before it reaches here.
+        run: |
+          npm i -g ajv-cli@5 ajv-formats@2
+          curl -fsSL https://jseverino.com/schemas/cordon-v4.json -o /tmp/cordon-v4.json
+          shopt -s nullglob
+          for f in contract/*.json; do
+            echo "validating $f"
+            ajv validate --spec=draft2020 -c ajv-formats -s /tmp/cordon-v4.json -d "$f"
+          done
