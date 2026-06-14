@@ -17,6 +17,9 @@ in the vault. This is the checklist `cordon-starter` exists to satisfy.
       not vendored); CI checks out the public cordon repo to provide it.
 - [ ] The committed `contract/*.json` golden matches the live `--describe`
       (drift checked by `scripts/check.sh`).
+- [ ] The README's command reference is *rendered* from `contract/*.json` by
+      `scripts/gen-readme.mjs`, never hand-kept; `scripts/check.sh` runs
+      `--check` so a drifted block fails CI.
 
 ## Git workflow
 

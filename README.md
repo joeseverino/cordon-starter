@@ -13,6 +13,9 @@ machinery) are *sourced from your toolchain*, not vendored.
 
 ## Start a new repo from it
 
+Quickest path: click **[Use this template](https://github.com/joeseverino/cordon-starter/generate)**
+on GitHub for a fresh repo with clean history. Or copy the tree locally and prune:
+
 ```sh
 cp -R "$PROJECTS_HOME/cordon-starter" "$PROJECTS_HOME/<repo>"
 cd "$PROJECTS_HOME/<repo>"
@@ -44,6 +47,7 @@ commit to `main`. See [AGENTS.md](AGENTS.md).
 | `.github/workflows/ci.yml` | shellcheck + Cordon schema conformance — the required `ci` check |
 | `scripts/try.sh` | smoke test — run it to watch the contract work end to end |
 | `scripts/check.sh` | **the gate** — pre-push, CI (`--ci`), and you all run it; `--fast`/`--env` tiers |
+| `scripts/gen-readme.mjs` | renders the README CLI reference from `contract/*.json` — the README *is* a render of the contract (zero deps, drift-gated) |
 | `.githooks/` + `scripts/setup-hooks.sh` | local guardrails: `pre-commit` blocks `main`, `commit-msg` blocks AI attribution, `pre-push` runs the gate |
 | `scripts/setup-governance.sh` | GitHub-side branch protection + security via `gh api` |
 | `docs/CORNERSTONES.md` | the full checklist, one line per standard |
@@ -58,8 +62,54 @@ they can't disagree. Every command carries an `effect`
 risk-gate before it acts. The canonical emitter lives at
 `"$TOOLS_HOME/lib/describe.sh"` — this starter sources it, never copies it.
 
+[![Emit once, render many: one declaration per tool emits one Cordon contract JSON document, rendered many ways — human help, shell completions, reference docs, an effect-gated agent spec — with no prose parsed](https://raw.githubusercontent.com/joeseverino/cordon/main/docs/diagrams/emit-once.png)](https://github.com/joeseverino/cordon#why-this-exists)
+
+<sup>Diagram source: [`cordon`](https://github.com/joeseverino/cordon) / [`docs/diagrams/emit-once.mmd`](https://github.com/joeseverino/cordon/blob/main/docs/diagrams/emit-once.mmd),
+pre-rendered with [`diagram`](https://github.com/joeseverino/tools/blob/main/bin/diagram).</sup>
+
 Full standard: [`jseverino.com/schemas/cordon-v4.json`](https://jseverino.com/schemas/cordon-v4.json)
 and the [`cordon`](https://github.com/joeseverino/cordon) spec repo.
+
+## Command reference (generated)
+
+The block below is rendered from `contract/*.json` by `scripts/gen-readme.mjs` —
+the README's command surface is a *render* of the contract, not a hand-kept copy.
+The gate runs `gen-readme.mjs --check`, so editing it by hand (or letting it drift
+from the tool) fails CI. This is the "render many" idea applied to the README
+itself; every repo derived from the starter inherits it.
+
+[![A single Cordon contract rendered many ways, including a generated README command reference](https://raw.githubusercontent.com/joeseverino/cordon/main/docs/images/diagram-generated-readme.png)](https://github.com/joeseverino/cordon)
+
+<sup>"Render many" made concrete: one Cordon contract rendered as a generated
+README command reference — exactly what `scripts/gen-readme.mjs` produces below.
+Source: [`cordon`](https://github.com/joeseverino/cordon) / [`docs/images/diagram-generated-readme.png`](https://github.com/joeseverino/cordon/blob/main/docs/images/diagram-generated-readme.png).</sup>
+
+<!-- BEGIN GENERATED: cli-reference (scripts/gen-readme.mjs — do not edit by hand) -->
+
+### `example-tool`
+
+effect: `read`
+
+Replace me: one line on what this tool does.
+
+**Options**
+
+| flag | value | required | help |
+|---|---|---|---|
+| `-n, --dry-run` | no | no | Show what would happen; write nothing |
+
+**Arguments**
+
+| arg | required | help |
+|---|---|---|
+| `name` | yes | The thing to act on |
+
+**Examples**
+
+- `example-tool widget` — acts on 'widget'
+- `example-tool -n widget` — dry run
+
+<!-- END GENERATED: cli-reference -->
 
 ## License
 

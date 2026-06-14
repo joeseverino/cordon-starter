@@ -12,6 +12,7 @@
 #                       full  --fast  --ci
 #   lint (shellcheck)     ✓      ✓      ✓
 #   contract drift*       ✓      ✓      —    (*re-emits --describe; needs $TOOLS_HOME)
+#   README reference      ✓      ✓      ✓    (gen-readme.mjs --check; contract/*.json, no deps)
 #   schema conformance**  ✓      —      ✓    (**validates via cordon's own harness)
 #   repo checks***        ✓      —      ✓    (***repo invariants via cordon's checks/run.mjs)
 set -euo pipefail
@@ -68,6 +69,13 @@ run_drift() {
     done
 }
 
+run_readme() {
+    echo "== README CLI reference (gen-readme.mjs --check) =="
+    # Renders from the committed contract/*.json — Node stdlib only, no
+    # $TOOLS_HOME, no deps — so it runs in every mode including --ci.
+    node scripts/gen-readme.mjs --check || fail=1
+}
+
 run_conformance() {
     echo "== schema conformance (cordon's harness) =="
     local golden
@@ -122,9 +130,9 @@ run_env() {
 }
 
 case "$MODE" in
-    full) run_shellcheck; run_drift; run_conformance; run_checks ;;
-    fast) run_shellcheck; run_drift ;;
-    ci)   run_shellcheck; run_conformance; run_checks ;;
+    full) run_shellcheck; run_drift; run_readme; run_conformance; run_checks ;;
+    fast) run_shellcheck; run_drift; run_readme ;;
+    ci)   run_shellcheck; run_readme; run_conformance; run_checks ;;
     env)  run_env; exit 0 ;;
 esac
 
