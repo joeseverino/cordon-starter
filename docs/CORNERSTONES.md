@@ -20,7 +20,7 @@ in the vault. This is the checklist `cordon-starter` exists to satisfy.
 
 - [ ] Never commit to `main`. Branch from a freshly fetched `origin/main`:
       `git fetch origin && git checkout -b <feature> origin/main`.
-- [ ] One feature = one branch name, reused across repos when it spans them.
+- [ ] One feature = one branch name, if multipe feuatures are arising, increasing the branch scope is justified and renaming, reused across repos when it spans them.
 - [ ] Solo-authored: no `Co-Authored-By`, no AI attribution in commits or PRs.
 - [ ] Hand back only on green CI with zero unresolved PR comments.
 
