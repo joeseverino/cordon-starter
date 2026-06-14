@@ -2,9 +2,9 @@
 # check.sh — THE verification gate. One definition; the pre-push hook, CI
 # (`--ci`), you, and an AI all run this exact script, so local and CI can't drift.
 #
-#   (no flag)   full   shellcheck + contract drift + schema conformance
-#   --fast             shellcheck + contract drift   (skips conformance; inner loop)
-#   --ci               shellcheck + schema conformance (no toolchain; ci.yml runs this)
+#   (no flag)   full   shellcheck + contract drift + schema conformance + repo checks
+#   --fast             shellcheck + contract drift   (skips conformance/checks; inner loop)
+#   --ci               shellcheck + schema conformance + repo checks (no toolchain; ci.yml runs this)
 #   --env              report environment wiring; run no checks
 #   -h, --help         this help
 #
@@ -13,6 +13,7 @@
 #   lint (shellcheck)     ✓      ✓      ✓
 #   contract drift*       ✓      ✓      —    (*re-emits --describe; needs $TOOLS_HOME)
 #   schema conformance**  ✓      —      ✓    (**validates via cordon's own harness)
+#   repo checks***        ✓      —      ✓    (***repo invariants via cordon's checks/run.mjs)
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -38,6 +39,7 @@ SHELLCHECK_TARGETS=(bin/* scripts/*.sh .githooks/*)
 # the validator are cordon's real, current files.
 CORDON_HOME="${CORDON_HOME:-${ASSETS_HOME:+$ASSETS_HOME/cordon}}"
 HARNESS="${CORDON_HOME:+$CORDON_HOME/conformance/validate.mjs}"
+CHECKS="${CORDON_HOME:+$CORDON_HOME/checks/run.mjs}"
 
 run_shellcheck() {
     echo "== shellcheck =="
@@ -77,10 +79,33 @@ run_conformance() {
         fi
         return
     fi
+    # The harness needs its own deps (ajv). If cordon's node_modules is missing
+    # (fresh checkout, or an iCloud conflict-copy ate the symlink) Node throws a
+    # raw ERR_MODULE_NOT_FOUND that looks like cordon is broken — report it
+    # actionably instead. CI installs cordon's deps, so there it's a hard fail.
+    if ! (cd "$CORDON_HOME" && node --input-type=module -e "import 'ajv/dist/2020.js'") >/dev/null 2>&1; then
+        local hint="cordon's deps aren't installed — run: (cd \"$CORDON_HOME\" && npm ci)"
+        if [[ "$MODE" == ci ]]; then echo "  FAIL — $hint" >&2; fail=1
+        else echo "  skipped — $hint"; fi
+        return
+    fi
     for golden in contract/*.json; do
         [[ -f "$golden" ]] || continue
         node "$HARNESS" "$golden" || fail=1   # harness prints ✓/✗ and sets the exit code
     done
+}
+
+run_checks() {
+    echo "== repo checks (cordon's runner) =="
+    if [[ -z "$CHECKS" || ! -f "$CHECKS" ]]; then
+        if [[ "$MODE" == ci ]]; then
+            echo "  FAIL — cordon checks runner not found (\$CORDON_HOME=${CORDON_HOME:-<unset>})" >&2; fail=1
+        else
+            echo "  skipped — \$CORDON_HOME not reachable (${CORDON_HOME:-<unset>}); CI runs them via cordon"
+        fi
+        return
+    fi
+    node "$CHECKS" --root "$PWD" || fail=1   # runner prints results and sets the exit code
 }
 
 run_env() {
@@ -90,15 +115,16 @@ run_env() {
     echo "  describe.sh reachable : $([[ -f "${TOOLS_HOME:-}/lib/describe.sh" ]] && echo yes || echo no)"
     echo "  CORDON_HOME           : ${CORDON_HOME:-<unset>}"
     echo "  cordon harness        : $([[ -n "$HARNESS" && -f "$HARNESS" ]] && echo yes || echo no)"
+    echo "  cordon checks runner  : $([[ -n "$CHECKS" && -f "$CHECKS" ]] && echo yes || echo no)"
     echo "  shellcheck            : $(_have shellcheck)"
     echo "  node                  : $(_have node)"
     echo "  hooks (core.hooksPath): $(git config core.hooksPath 2>/dev/null || echo '<unset — run scripts/setup-hooks.sh>')"
 }
 
 case "$MODE" in
-    full) run_shellcheck; run_drift; run_conformance ;;
+    full) run_shellcheck; run_drift; run_conformance; run_checks ;;
     fast) run_shellcheck; run_drift ;;
-    ci)   run_shellcheck; run_conformance ;;
+    ci)   run_shellcheck; run_conformance; run_checks ;;
     env)  run_env; exit 0 ;;
 esac
 
