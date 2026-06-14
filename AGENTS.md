@@ -55,15 +55,18 @@ gh pr create
 - **Solo-authored.** No `Co-Authored-By`, no "Claude/AI" mentions in commits or
   PR bodies.
 
-`main` is protected: required status check `ci` must be green, conversations
-must be resolved before merge, admin bypass is allowed (you review and merge).
-Apply it on a new repo with `scripts/setup-governance.sh` (see below).
+On a new repo, run `scripts/setup-governance.sh` to protect `main` (required
+`ci` green, conversations resolved, admin bypass — you review and merge) and
+switch on the security settings. Branch protection needs a public repo or
+GitHub Pro; on a private free repo the script skips it and "never commit to
+`main`" holds by discipline.
 
 ## CI and security
 
 - `.github/workflows/ci.yml` runs two universal gates: **shellcheck** on
   `bin/`+`scripts/`, and **schema conformance** — every committed
-  `contract/*.json` must validate against `cordon-v4.json`.
+  `contract/*.json` must validate against the vendored `schema/cordon-v4.json`
+  (frozen v4; CI never fetches it over the network).
 - Add language-specific lint/scanners per the repo's narrative. Security-focused
   repos get a visible scanner (Semgrep/CodeQL) + badge; a plain CLI gets
   lint-only. See `docs/CORNERSTONES.md`.

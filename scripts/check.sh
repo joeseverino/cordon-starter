@@ -37,8 +37,8 @@ echo "== schema conformance =="
 # Prefer the canonical cordon harness if it's checked out locally; otherwise
 # validate against the vendored frozen schema with ajv. Either way the contract
 # is checked against cordon-v4 — CI does the same with the vendored schema.
-cordon="${CORDON_HOME:-${ASSETS_HOME:-$HOME/Documents/Code/Assets}/cordon}"
-if [[ -f "$cordon/conformance/validate.mjs" ]]; then
+cordon="${CORDON_HOME:-${ASSETS_HOME:+$ASSETS_HOME/cordon}}"
+if [[ -n "$cordon" && -f "$cordon/conformance/validate.mjs" ]]; then
     for golden in contract/*.json; do
         [[ -f "$golden" ]] || continue
         node "$cordon/conformance/validate.mjs" "$golden" && echo "  ok: $golden" || fail=1

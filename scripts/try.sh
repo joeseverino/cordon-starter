@@ -5,10 +5,8 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-# The example tool sources the canonical describe.sh from the toolchain. Honor
-# $TOOLS_HOME from ~/.zshrc; fall back to the standard location for a bare shell.
-: "${TOOLS_HOME:=${ASSETS_HOME:-$HOME/Documents/Code/Assets}/tools}"
-export TOOLS_HOME
+# Needs $TOOLS_HOME (exported from ~/.zshrc): the example tool sources the
+# canonical describe.sh from there, and says so itself if it's unset.
 
 hr() { printf '\n\033[1m── %s ──\033[0m\n' "$1"; }
 
@@ -16,7 +14,7 @@ hr "1. human help  (rendered from describe_spec)"
 ./bin/example-tool -h
 
 hr "2. machine contract  (--describe — risk-gate on .effect)"
-./bin/example-tool --describe --pretty 2>/dev/null || ./bin/example-tool --describe
+./bin/example-tool --describe --pretty
 
 hr "3. dry run  (mutates nothing)"
 ./bin/example-tool -n widget
