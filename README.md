@@ -62,7 +62,7 @@ they can't disagree. Every command carries an `effect`
 risk-gate before it acts. The canonical emitter lives at
 `"$TOOLS_HOME/lib/describe.sh"` — this starter sources it, never copies it.
 
-[![Emit once, render many: one declaration per tool emits one Cordon contract JSON document, rendered many ways — human help, shell completions, reference docs, an effect-gated agent spec — with no prose parsed](https://raw.githubusercontent.com/joeseverino/cordon/v1.0.0/docs/diagrams/emit-once.png)](https://github.com/joeseverino/cordon#why-this-exists)
+[![Emit once, render many: one declaration per tool emits one Cordon contract JSON document, rendered many ways — human help, shell completions, reference docs, an effect-gated agent spec — with no prose parsed](https://raw.githubusercontent.com/joeseverino/cordon/main/docs/diagrams/emit-once.png)](https://github.com/joeseverino/cordon#why-this-exists)
 
 Full standard: [`jseverino.com/schemas/cordon-v4.json`](https://jseverino.com/schemas/cordon-v4.json)
 and the [`cordon`](https://github.com/joeseverino/cordon) spec repo.
@@ -75,7 +75,7 @@ The gate runs `gen-readme.mjs --check`, so editing it by hand (or letting it dri
 from the tool) fails CI. This is the "render many" idea applied to the README
 itself; every repo derived from the starter inherits it.
 
-[![A single Cordon contract rendered many ways, including a generated README command reference](https://raw.githubusercontent.com/joeseverino/cordon/v1.0.0/docs/images/diagram-generated-readme.png)](https://github.com/joeseverino/cordon)
+[![A single Cordon contract rendered many ways, including a generated README command reference](https://raw.githubusercontent.com/joeseverino/cordon/main/docs/images/diagram-generated-readme.png)](https://github.com/joeseverino/cordon)
 
 <!-- BEGIN GENERATED: cli-reference (scripts/gen-readme.mjs — do not edit by hand) -->
 
