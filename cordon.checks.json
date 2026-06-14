@@ -3,5 +3,20 @@
   "idempotence": {
     "command": null
   },
-  "commands": []
+  "commands": [
+    {
+      "id": "demo-failure",
+      "name": "Intentional demo failure",
+      "effect": "read",
+      "exec": { "cmd": "sh", "args": ["-c", "echo 'pretend a spec found a problem here'; exit 1"] },
+      "fix": "This is a deliberate demo — delete the demo-failure entry from cordon.checks.json to go green."
+    },
+    {
+      "id": "demo-skip",
+      "name": "Intentional capability skip",
+      "effect": "local_write",
+      "requires": ["a-tool-that-is-not-installed"],
+      "exec": { "cmd": "true" }
+    }
+  ]
 }
