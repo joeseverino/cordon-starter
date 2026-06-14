@@ -61,6 +61,11 @@ switch on the security settings. Branch protection needs a public repo or
 GitHub Pro; on a private free repo the script skips it and "never commit to
 `main`" holds by discipline.
 
+Make that discipline enforceable offline too: `scripts/setup-hooks.sh` points
+git at the tracked `.githooks/` (`core.hooksPath`). `pre-commit` refuses commits
+on `main`; `pre-push` runs `scripts/check.sh` so red never leaves the machine.
+Bypass deliberately with `ALLOW_MAIN_COMMIT=1` / `git push --no-verify`.
+
 ## CI and security
 
 - `.github/workflows/ci.yml` runs two universal gates: **shellcheck** on
