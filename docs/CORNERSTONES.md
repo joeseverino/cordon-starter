@@ -23,6 +23,9 @@ in the vault. This is the checklist `cordon-starter` exists to satisfy.
 - [ ] One feature = one branch name, if multipe feuatures are arising, increasing the branch scope is justified and renaming, reused across repos when it spans them.
 - [ ] Solo-authored: no `Co-Authored-By`, no AI attribution in commits or PRs.
 - [ ] Hand back only on green CI with zero unresolved PR comments.
+- [ ] Local hooks make it stick even offline: `scripts/setup-hooks.sh` sets
+      `core.hooksPath=.githooks` — `pre-commit` blocks `main`, `pre-push` runs
+      `scripts/check.sh`. Bypass: `ALLOW_MAIN_COMMIT=1` / `git push --no-verify`.
 
 ## GitHub governance (`scripts/setup-governance.sh`)
 

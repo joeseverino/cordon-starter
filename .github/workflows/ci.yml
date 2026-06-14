@@ -16,7 +16,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y shellcheck
-          shellcheck -x bin/* scripts/*.sh
+          shellcheck -x bin/* scripts/*.sh .githooks/*
 
       - uses: actions/setup-node@v5
         with:

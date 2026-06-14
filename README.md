@@ -17,6 +17,7 @@ machinery) are *sourced from your toolchain*, not vendored.
 cp -R "$PROJECTS_HOME/cordon-starter" "$PROJECTS_HOME/<repo>"
 cd "$PROJECTS_HOME/<repo>"
 rm -rf .git && git init -b main          # fresh history
+scripts/setup-hooks.sh                    # local guardrails (block main, gate pushes) — works offline
 
 # make it yours
 mv bin/example-tool bin/<repo>           # rename the tool, rewrite describe_spec
@@ -44,7 +45,8 @@ commit to `main`. See [AGENTS.md](AGENTS.md).
 | `.github/workflows/ci.yml` | shellcheck + Cordon schema conformance — the required `ci` check |
 | `scripts/try.sh` | smoke test — run it to watch the contract work end to end |
 | `scripts/check.sh` | local pre-push gate (same gates as CI) |
-| `scripts/setup-governance.sh` | branch protection + security settings via `gh api` |
+| `.githooks/` + `scripts/setup-hooks.sh` | local guardrails: `pre-commit` blocks `main`, `pre-push` runs the gate |
+| `scripts/setup-governance.sh` | GitHub-side branch protection + security via `gh api` |
 | `docs/CORNERSTONES.md` | the full checklist, one line per standard |
 | `optional/base.css` | design-token seed from jseverino.com — opt in for frontends |
 

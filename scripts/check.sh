@@ -9,7 +9,7 @@ fail=0
 
 echo "== shellcheck =="
 if command -v shellcheck >/dev/null 2>&1; then
-    shellcheck -x bin/* scripts/*.sh && echo "  ok" || fail=1
+    shellcheck -x bin/* scripts/*.sh .githooks/* && echo "  ok" || fail=1
 else
     echo "  skipped — shellcheck not installed (brew install shellcheck)"
 fi
