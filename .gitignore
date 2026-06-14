@@ -22,6 +22,9 @@ Thumbs.db
 /node_modules
 /node_modules.nosync/
 
+# CI checks out the cordon repo here to validate against it; never committed.
+/.cordon/
+
 # Build output
 /dist/
 /build/

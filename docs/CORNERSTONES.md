@@ -13,6 +13,8 @@ in the vault. This is the checklist `cordon-starter` exists to satisfy.
       `+network` / `+interactive` when true.
 - [ ] The `describe.sh` emitter is **sourced** from `"$TOOLS_HOME/lib/describe.sh"`,
       not copied into the repo.
+- [ ] The schema + validator come from cordon via `$CORDON_HOME` (referenced,
+      not vendored); CI checks out the public cordon repo to provide it.
 - [ ] The committed `contract/*.json` golden matches the live `--describe`
       (drift checked by `scripts/check.sh`).
 

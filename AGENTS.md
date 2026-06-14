@@ -71,8 +71,8 @@ deliberately with `ALLOW_MAIN_COMMIT=1` / `git … --no-verify`.
 
 - `.github/workflows/ci.yml` runs **`scripts/check.sh --ci`** — the *same* gate
   the pre-push hook and you run, in its no-toolchain mode (shellcheck + schema
-  conformance against the vendored `schema/cordon-v4.json`, frozen v4, no
-  network). One definition, so CI and local can't drift.
+  conformance via cordon's own harness at `$CORDON_HOME` — cordon is
+  referenced, never vendored). One definition, so CI and local can't drift.
 - Add language-specific lint/scanners per the repo's narrative. Security-focused
   repos get a visible scanner (Semgrep/CodeQL) + badge; a plain CLI gets
   lint-only. See `docs/CORNERSTONES.md`.
@@ -92,6 +92,7 @@ These repos live in the Severino Code tree and read paths from `~/.zshrc`
 | `$PROJECTS_HOME` | `$CODE_HOME/Projects` |
 | `$ASSETS_HOME` | `$CODE_HOME/Assets` |
 | `$TOOLS_HOME` | `$ASSETS_HOME/tools` — the canonical `describe.sh` lives here |
+| `$CORDON_HOME` | `$ASSETS_HOME/cordon` — the schema + conformance harness this validates against |
 | `$NOTES_HOME` | the Obsidian vault |
 
 ## Verify before handing back

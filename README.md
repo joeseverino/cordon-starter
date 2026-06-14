@@ -41,7 +41,6 @@ commit to `main`. See [AGENTS.md](AGENTS.md).
 | `AGENTS.md` (+ `CLAUDE.md` symlink) | the cornerstone playbook — read first |
 | `bin/example-tool` | a runnable Cordon-emitting tool; copy its `describe_spec()` |
 | `contract/example-tool.json` | the committed golden contract (emitted, never hand-edited) |
-| `schema/cordon-v4.json` | the vendored, frozen v4 schema CI validates against (no network) |
 | `.github/workflows/ci.yml` | shellcheck + Cordon schema conformance — the required `ci` check |
 | `scripts/try.sh` | smoke test — run it to watch the contract work end to end |
 | `scripts/check.sh` | **the gate** — pre-push, CI (`--ci`), and you all run it; `--fast`/`--env` tiers |
