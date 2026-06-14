@@ -64,9 +64,8 @@ risk-gate before it acts. The canonical emitter lives at
 
 [![Emit once, render many: one declaration per tool emits one Cordon contract JSON document, rendered many ways — human help, shell completions, reference docs, an effect-gated agent spec — with no prose parsed](https://raw.githubusercontent.com/joeseverino/cordon/main/docs/diagrams/emit-once.png)](https://github.com/joeseverino/cordon#why-this-exists)
 
-<sup>Diagram source: [`emit-once.mmd`](https://github.com/joeseverino/cordon/blob/main/docs/diagrams/emit-once.mmd)
-in [`cordon`](https://github.com/joeseverino/cordon), pre-rendered with
-[`diagram`](https://github.com/joeseverino/tools/blob/main/bin/diagram).</sup>
+<sup>Diagram source: [`cordon`](https://github.com/joeseverino/cordon) / [`docs/diagrams/emit-once.mmd`](https://github.com/joeseverino/cordon/blob/main/docs/diagrams/emit-once.mmd),
+pre-rendered with [`diagram`](https://github.com/joeseverino/tools/blob/main/bin/diagram).</sup>
 
 Full standard: [`jseverino.com/schemas/cordon-v4.json`](https://jseverino.com/schemas/cordon-v4.json)
 and the [`cordon`](https://github.com/joeseverino/cordon) spec repo.
@@ -83,7 +82,7 @@ itself; every repo derived from the starter inherits it.
 
 <sup>"Render many" made concrete: one Cordon contract rendered as a generated
 README command reference — exactly what `scripts/gen-readme.mjs` produces below.
-Branded asset from the [`cordon`](https://github.com/joeseverino/cordon) spec repo.</sup>
+Source: [`cordon`](https://github.com/joeseverino/cordon) / [`docs/images/diagram-generated-readme.png`](https://github.com/joeseverino/cordon/blob/main/docs/images/diagram-generated-readme.png).</sup>
 
 <!-- BEGIN GENERATED: cli-reference (scripts/gen-readme.mjs — do not edit by hand) -->
 
