@@ -63,22 +63,23 @@ GitHub Pro; on a private free repo the script skips it and "never commit to
 
 Make that discipline enforceable offline too: `scripts/setup-hooks.sh` points
 git at the tracked `.githooks/` (`core.hooksPath`). `pre-commit` refuses commits
-on `main`; `pre-push` runs `scripts/check.sh` so red never leaves the machine.
-Bypass deliberately with `ALLOW_MAIN_COMMIT=1` / `git push --no-verify`.
+on `main`; `commit-msg` rejects AI attribution (the solo-authored rule above);
+`pre-push` runs `scripts/check.sh` so red never leaves the machine. Bypass
+deliberately with `ALLOW_MAIN_COMMIT=1` / `git … --no-verify`.
 
 ## CI and security
 
-- `.github/workflows/ci.yml` runs two universal gates: **shellcheck** on
-  `bin/`+`scripts/`, and **schema conformance** — every committed
-  `contract/*.json` must validate against the vendored `schema/cordon-v4.json`
-  (frozen v4; CI never fetches it over the network).
+- `.github/workflows/ci.yml` runs **`scripts/check.sh --ci`** — the *same* gate
+  the pre-push hook and you run, in its no-toolchain mode (shellcheck + schema
+  conformance against the vendored `schema/cordon-v4.json`, frozen v4, no
+  network). One definition, so CI and local can't drift.
 - Add language-specific lint/scanners per the repo's narrative. Security-focused
   repos get a visible scanner (Semgrep/CodeQL) + badge; a plain CLI gets
   lint-only. See `docs/CORNERSTONES.md`.
 - **Contract drift is a CI failure waiting to happen — catch it locally.** Run
-  `scripts/check.sh` before pushing: it re-emits each tool's `--describe` and
-  diffs it against the committed `contract/*.json`. Regenerate and commit the
-  golden when the surface legitimately changes.
+  `scripts/check.sh` before pushing (`--fast` for a quick loop): it re-emits
+  each tool's `--describe` and diffs it against the committed `contract/*.json`.
+  Regenerate and commit the golden when the surface legitimately changes.
 
 ## Environment it assumes
 

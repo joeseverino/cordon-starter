@@ -44,8 +44,8 @@ commit to `main`. See [AGENTS.md](AGENTS.md).
 | `schema/cordon-v4.json` | the vendored, frozen v4 schema CI validates against (no network) |
 | `.github/workflows/ci.yml` | shellcheck + Cordon schema conformance — the required `ci` check |
 | `scripts/try.sh` | smoke test — run it to watch the contract work end to end |
-| `scripts/check.sh` | local pre-push gate (same gates as CI) |
-| `.githooks/` + `scripts/setup-hooks.sh` | local guardrails: `pre-commit` blocks `main`, `pre-push` runs the gate |
+| `scripts/check.sh` | **the gate** — pre-push, CI (`--ci`), and you all run it; `--fast`/`--env` tiers |
+| `.githooks/` + `scripts/setup-hooks.sh` | local guardrails: `pre-commit` blocks `main`, `commit-msg` blocks AI attribution, `pre-push` runs the gate |
 | `scripts/setup-governance.sh` | GitHub-side branch protection + security via `gh api` |
 | `docs/CORNERSTONES.md` | the full checklist, one line per standard |
 | `optional/base.css` | design-token seed from jseverino.com — opt in for frontends |
