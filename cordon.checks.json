@@ -2,5 +2,6 @@
   "$schema": "https://raw.githubusercontent.com/joeseverino/cordon/main/checks/config.schema.json",
   "idempotence": {
     "command": null
-  }
+  },
+  "commands": []
 }
