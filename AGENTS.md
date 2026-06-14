@@ -80,6 +80,9 @@ deliberately with `ALLOW_MAIN_COMMIT=1` / `git … --no-verify`.
   `scripts/check.sh` before pushing (`--fast` for a quick loop): it re-emits
   each tool's `--describe` and diffs it against the committed `contract/*.json`.
   Regenerate and commit the golden when the surface legitimately changes.
+- `scripts/check.sh` prints a compact line per check by default; add `--verbose`
+  for the expanded view (headers + sub-tool output) or **`--json`** for a
+  machine-readable result object — prefer `--json` when consuming it as an agent.
 
 ## Environment it assumes
 
