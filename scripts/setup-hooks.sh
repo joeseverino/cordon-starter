@@ -9,4 +9,5 @@ git config core.hooksPath .githooks
 chmod +x .githooks/* 2>/dev/null || true
 echo "Local hooks on (core.hooksPath=.githooks):"
 echo "  pre-commit — refuses commits on main/master (bypass: ALLOW_MAIN_COMMIT=1)"
+echo "  commit-msg — rejects AI attribution in the message (bypass: git commit --no-verify)"
 echo "  pre-push   — runs scripts/check.sh, never push red (bypass: git push --no-verify)"
