@@ -77,12 +77,13 @@ deliberately with `ALLOW_MAIN_COMMIT=1` / `git … --no-verify`.
   repos get a visible scanner (Semgrep/CodeQL) + badge; a plain CLI gets
   lint-only. See `docs/CORNERSTONES.md`.
 - **Contract drift is a CI failure waiting to happen — catch it locally.** Run
-  `scripts/check.sh` before pushing (`--fast` for a quick loop): it re-emits
-  each tool's `--describe` and diffs it against the committed `contract/*.json`.
-  Regenerate and commit the golden when the surface legitimately changes.
-- `scripts/check.sh` prints a compact line per check by default; add `--verbose`
-  for the expanded view (headers + sub-tool output) or **`--json`** for a
-  machine-readable result object — prefer `--json` when consuming it as an agent.
+  `scripts/check.sh` before pushing: the engine's `drift` check re-emits each
+  tool's `--describe` and diffs it against the committed `contract/*.json`
+  (it's `!ci`-gated — local only, since it needs `$TOOLS_HOME`). Regenerate and
+  commit the golden when the surface legitimately changes.
+- `scripts/check.sh` is the identical wrapper every cordon repo ships; it runs
+  cordon's checks engine over `cordon.checks.json`. Pass engine flags through —
+  **`--json`** for a machine-readable result object (prefer it as an agent).
 
 ## Repo checks config (`cordon.checks.json`)
 
@@ -115,7 +116,7 @@ posture is lean, and you opt in by adding the capability, not by flipping a flag
   (or open `cordon.checks.json` and let the schema prompt you). `--json` is the
   agent contract; `--phase pre-build|build|post-build` runs one phase.
 - The `idempotence` knob ships **off** (`"command": null`). When you add a
-  build/generate step, set it — e.g. `"command": "scripts/check.sh --fast"` — and
+  build/generate step, set it — e.g. `"command": "scripts/gen-readme.mjs"` — and
   the check fails if that command ever dirties the worktree.
 - Add a spec as a command (every spec carries an honest `effect`, like a tool):
 

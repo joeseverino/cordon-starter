@@ -11,7 +11,11 @@ cd "$(git rev-parse --show-toplevel)"
 git config core.hooksPath .githooks
 chmod +x .githooks/* 2>/dev/null || true
 
+# Use the tracked commit template (solo-authored guidance) if present.
+[ -f .gitmessage ] && git config commit.template .gitmessage
+
 banner "hooks" "local guardrails enabled — core.hooksPath=.githooks"
 pass "pre-commit   refuses commits on main/master   $(printf '%s(bypass: ALLOW_MAIN_COMMIT=1)%s' "$D" "$R")"
 pass "commit-msg   rejects AI attribution           $(printf '%s(bypass: git commit --no-verify)%s' "$D" "$R")"
 pass "pre-push     runs scripts/check.sh            $(printf '%s(bypass: git push --no-verify)%s' "$D" "$R")"
+[ -f .gitmessage ] && pass "commit.template  .gitmessage                  $(printf '%s(solo-authored guidance)%s' "$D" "$R")"

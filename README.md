@@ -16,11 +16,20 @@ machinery) are *sourced from your toolchain*, not vendored.
 Quickest path: click **[Use this template](https://github.com/joeseverino/cordon-starter/generate)**
 on GitHub for a fresh repo with clean history. Or copy the tree locally and prune:
 
+First machine only — make cordon reachable (clones it + sets `CORDON_HOME` in
+`~/.zshrc`, with a backup; skip if you already have it):
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/joeseverino/cordon/main/install.sh | bash
+```
+
+Then:
+
 ```sh
 cp -R "$PROJECTS_HOME/cordon-starter" "$PROJECTS_HOME/<repo>"
 cd "$PROJECTS_HOME/<repo>"
 rm -rf .git && git init -b main          # fresh history
-scripts/setup-hooks.sh                    # local guardrails (block main, gate pushes) — works offline
+scripts/setup-hooks.sh                    # local guardrails + commit template — works offline
 
 # make it yours
 mv bin/example-tool bin/<repo>           # rename the tool, rewrite describe_spec
@@ -44,13 +53,16 @@ commit to `main`. See [AGENTS.md](AGENTS.md).
 | `AGENTS.md` (+ `CLAUDE.md` symlink) | the cornerstone playbook — read first |
 | `bin/example-tool` | a runnable Cordon-emitting tool; copy its `describe_spec()` |
 | `contract/example-tool.json` | the committed golden contract (emitted, never hand-edited) |
-| `.github/workflows/ci.yml` | shellcheck + Cordon schema conformance — the required `ci` check |
+| `.github/workflows/ci.yml` | three lines calling cordon's reusable gate — the required `cordon / gate` check |
 | `scripts/try.sh` | smoke test — run it to watch the contract work end to end |
-| `scripts/check.sh` | **the gate** — pre-push, CI (`--ci`), and you all run it. Compact by default; `--verbose` expands, `--json` for AI; `--fast`/`--env` tiers |
-| `scripts/_lib.sh` | in-repo presentation (palette + `banner`/`step`/`run`); sourced by `try.sh`/`check.sh`, no external dep |
+| `scripts/check.sh` | **the gate** — the identical wrapper every cordon repo ships; runs cordon's checks engine over `cordon.checks.json`. Pre-push, CI, and you all run it (`--json` for AI) |
+| `scripts/_lib.sh` | in-repo presentation (palette + `banner`/`step`/`run`); sourced by `try.sh`, no external dep |
 | `scripts/gen-readme.mjs` | renders the README CLI reference from `contract/*.json` — the README *is* a render of the contract (zero deps, drift-gated) |
-| `.githooks/` + `scripts/setup-hooks.sh` | local guardrails: `pre-commit` blocks `main`, `commit-msg` blocks AI attribution, `pre-push` runs the gate |
-| `scripts/setup-governance.sh` | GitHub-side branch protection + security via `gh api` |
+| `.githooks/` + `scripts/setup-hooks.sh` | local guardrails: `pre-commit` blocks `main`, `commit-msg` blocks AI attribution, `pre-push` runs the gate, and it wires `commit.template` |
+| `scripts/setup-governance.sh` | GitHub-side branch protection (required `cordon / gate`, `enforce_admins`) + security via `gh api` |
+| `.github/dependabot.yml` | keeps pinned Actions current; uncomment your language ecosystem (pip/npm) |
+| `.editorconfig` | shared editor defaults (LF, final newline, 4-space / 2 for web) |
+| `.gitmessage` | commit template — solo-authored guidance (wired by `setup-hooks.sh`) |
 | `docs/CORNERSTONES.md` | the full checklist, one line per standard |
 | `optional/base.css` | design-token seed from jseverino.com — opt in for frontends |
 
