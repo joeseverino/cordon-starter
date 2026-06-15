@@ -1,49 +1,17 @@
-name: ci
+# The entire CI surface of this repo. All the plumbing — checkout, tool setup,
+# pinned action SHAs, running the gate, surfacing the report — lives once in
+# cordon's reusable gate, which runs this repo's own `scripts/check.sh --ci`
+# (the same gate you run locally and pre-push). To change CI for every repo,
+# edit the gate in cordon; to change this repo's checks, edit scripts/check.sh
+# and cordon.checks.json. Required status check: `cordon / gate`.
+# See https://github.com/joeseverino/cordon/blob/main/docs/REUSABLE-GATE.md
+name: cordon
 
-# The required status check is the job name `ci` (see setup-governance.sh).
-# Runs the SAME gate the pre-push hook and you run — scripts/check.sh — in its
-# no-toolchain --ci mode. Conformance validates against cordon's OWN harness:
-# the public cordon repo is checked out and $CORDON_HOME points at it, so the
-# schema is never copied and is always cordon's real, current file.
 on:
   push:
     branches: [main]
   pull_request:
 
 jobs:
-  ci:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Check out cordon (the contract's canonical home)
-        uses: actions/checkout@v5
-        with:
-          repository: joeseverino/cordon
-          path: .cordon
-
-      - uses: actions/setup-node@v5
-        with:
-          node-version: "24"
-
-      - name: Provision the gate's tools
-        run: |
-          # `|| true`: don't let a broken preinstalled third-party apt repo
-          # (e.g. packages.microsoft.com 403s its signing key) fail the gate —
-          # shellcheck comes from the always-present Ubuntu archive.
-          sudo apt-get update -qq || true
-          sudo apt-get install -y shellcheck
-          npm --prefix .cordon ci
-
-      - name: Gate (scripts/check.sh --ci)
-        env:
-          CORDON_HOME: ${{ github.workspace }}/.cordon
-        run: scripts/check.sh --ci
-
-      # Clean log above; always surface the checks engine's report (the
-      # whole-picture status table, green or red — the engine writes it in CI) to
-      # the run summary. The same verdict is available as
-      # `node "$CORDON_HOME/checks/run.mjs" --json` for AI.
-      - name: Surface the checks report
-        if: always()
-        run: '[ -f .cordon-checks-report.md ] && cat .cordon-checks-report.md >> "$GITHUB_STEP_SUMMARY" || true'
+  cordon:
+    uses: joeseverino/cordon/.github/workflows/cordon-gate.yml@main
