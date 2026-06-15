@@ -30,7 +30,7 @@ step 4 "real run" "the handler fires; effect=read, so still nothing is persisted
 run ./bin/example-tool widget
 
 step 5 "the gate" "shellcheck + contract drift + schema conformance — exactly what CI runs"
-run ./scripts/check.sh --verbose
+run ./scripts/check.sh
 
 rule
 printf '%s%s ✓ walkthrough complete%s\n\n' "$B" "$GR" "$R"

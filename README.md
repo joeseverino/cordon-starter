@@ -44,10 +44,10 @@ commit to `main`. See [AGENTS.md](AGENTS.md).
 | `AGENTS.md` (+ `CLAUDE.md` symlink) | the cornerstone playbook — read first |
 | `bin/example-tool` | a runnable Cordon-emitting tool; copy its `describe_spec()` |
 | `contract/example-tool.json` | the committed golden contract (emitted, never hand-edited) |
-| `.github/workflows/ci.yml` | shellcheck + Cordon schema conformance — the required `ci` check |
+| `.github/workflows/ci.yml` | three lines calling cordon's reusable gate — the required `cordon / gate` check |
 | `scripts/try.sh` | smoke test — run it to watch the contract work end to end |
-| `scripts/check.sh` | **the gate** — pre-push, CI (`--ci`), and you all run it. Compact by default; `--verbose` expands, `--json` for AI; `--fast`/`--env` tiers |
-| `scripts/_lib.sh` | in-repo presentation (palette + `banner`/`step`/`run`); sourced by `try.sh`/`check.sh`, no external dep |
+| `scripts/check.sh` | **the gate** — the identical wrapper every cordon repo ships; runs cordon's checks engine over `cordon.checks.json`. Pre-push, CI, and you all run it (`--json` for AI) |
+| `scripts/_lib.sh` | in-repo presentation (palette + `banner`/`step`/`run`); sourced by `try.sh`, no external dep |
 | `scripts/gen-readme.mjs` | renders the README CLI reference from `contract/*.json` — the README *is* a render of the contract (zero deps, drift-gated) |
 | `.githooks/` + `scripts/setup-hooks.sh` | local guardrails: `pre-commit` blocks `main`, `commit-msg` blocks AI attribution, `pre-push` runs the gate |
 | `scripts/setup-governance.sh` | GitHub-side branch protection + security via `gh api` |

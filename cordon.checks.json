@@ -1,7 +1,36 @@
 {
   "$schema": "https://raw.githubusercontent.com/joeseverino/cordon/main/checks/config.schema.json",
-  "idempotence": {
-    "command": null
-  },
-  "commands": []
+  "idempotence": { "command": null },
+  "commands": [
+    {
+      "id": "shellcheck",
+      "name": "ShellCheck",
+      "effect": "read",
+      "requires": ["shellcheck"],
+      "exec": { "cmd": "sh", "args": ["-c", "shellcheck -x bin/* scripts/*.sh .githooks/*"] },
+      "fix": "Fix the reported shell issues, or add a scoped `# shellcheck disable=...`."
+    },
+    {
+      "id": "readme",
+      "name": "README reference in sync",
+      "effect": "read",
+      "exec": { "cmd": "node", "args": ["scripts/gen-readme.mjs", "--check"] },
+      "fix": "Run `node scripts/gen-readme.mjs` to regenerate the README CLI block."
+    },
+    {
+      "id": "conformance",
+      "name": "Contracts validate against cordon",
+      "effect": "read",
+      "exec": { "cmd": "sh", "args": ["-c", "for f in contract/*.json; do node \"$CORDON_HOME/conformance/validate.mjs\" \"$f\" || exit 1; done"] },
+      "fix": "Regenerate the golden: `bin/<tool> --describe > contract/<tool>.json`."
+    },
+    {
+      "id": "drift",
+      "name": "Contract == live --describe",
+      "effect": "read",
+      "requires": ["!ci"],
+      "exec": { "cmd": "sh", "args": ["-c", "for t in bin/*; do [ -x \"$t\" ] || continue; g=\"contract/$(basename \"$t\").json\"; \"$t\" --describe | diff -u \"$g\" - || exit 1; done"] },
+      "fix": "Regenerate the golden after a surface change: `bin/<tool> --describe > contract/<tool>.json`. (Local-only; needs $TOOLS_HOME.)"
+    }
+  ]
 }
