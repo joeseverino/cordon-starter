@@ -4,10 +4,12 @@
 # sets rather than trusting a 2xx.
 #
 #   <branch> protection (the repo's default branch):
-#     - required status check `ci` must pass (strict: branch up to date)
+#     - required status check `cordon / gate` must pass (strict: branch up to
+#       date) — the context the reusable gate produces, uniform across repos
 #     - conversations must be resolved before merge (no unresolved comments)
 #     - a pull request is required, 0 required approvals (solo can't self-approve)
-#     - enforce_admins: false  → admin bypass allowed (you review and merge)
+#     - enforce_admins: true   → admins are held to the rules too (no red-check
+#       bypass); you still merge, but only once the gate is green
 #   security (free on private repos):
 #     - vulnerability alerts on
 #     - automated security fixes (Dependabot security updates) on
@@ -19,7 +21,7 @@
 #
 # Usage: scripts/setup-governance.sh [owner/repo] [required-check]
 #   owner/repo     defaults to the current repo (gh repo view)
-#   required-check defaults to "ci" (must match the ci.yml job name)
+#   required-check defaults to "cordon / gate" (the reusable gate's check context)
 set -euo pipefail
 
 # shellcheck source=scripts/_lib.sh
@@ -32,7 +34,7 @@ gh auth token   >/dev/null 2>&1 || { bad "gh not authenticated — run: gh auth 
 REPO="${1:-}"
 [[ -n "$REPO" ]] || REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || true)"
 [[ -n "$REPO" ]] || { bad "no repo — pass owner/repo or run inside a gh repo" >&2; exit 1; }
-CHECK="${2:-ci}"
+CHECK="${2:-cordon / gate}"
 
 # Confirm access and read live facts — never assume the branch is "main".
 BRANCH="$(gh api "repos/$REPO" -q .default_branch 2>/dev/null || true)"
@@ -46,12 +48,15 @@ printf '   %s%-15s%s %s\n' "$D" "default branch" "$R" "$BRANCH"
 printf '   %s%-15s%s %s\n' "$D" "visibility" "$R" "$VISIBILITY"
 printf '   %s%-15s%s %s\n' "$D" "required check" "$R" "$CHECK"
 
-# The required check is a job NAME. If it doesn't exist, protection will wedge
-# every PR (a check that never reports). Warn early when we can see the workflow.
+# The required check must be a context the workflow actually produces, or
+# protection wedges every PR. The standard is the reusable gate's `cordon / gate`;
+# warn only if ci.yml neither calls the gate nor defines a matching job.
 script_dir="$(cd "$(dirname "$0")/.." && pwd)"
-if [[ -f "$script_dir/.github/workflows/ci.yml" ]] \
-   && ! grep -qE "^[[:space:]]+${CHECK}:[[:space:]]*$" "$script_dir/.github/workflows/ci.yml"; then
-    warn "no job named '$CHECK' in ci.yml — a required check that never reports blocks every merge" >&2
+ci_yml="$script_dir/.github/workflows/ci.yml"
+if [[ -f "$ci_yml" ]] \
+   && ! grep -q "cordon-gate.yml" "$ci_yml" \
+   && ! grep -qE "^[[:space:]]+${CHECK%% *}:[[:space:]]*$" "$ci_yml"; then
+    warn "ci.yml neither calls cordon's gate nor has a job for '$CHECK' — a required check that never reports blocks every merge" >&2
 fi
 
 # ── branch protection ────────────────────────────────────────────────────────
@@ -59,7 +64,7 @@ section "branch protection"
 protection_payload="$(cat <<JSON
 {
   "required_status_checks": { "strict": true, "contexts": ["$CHECK"] },
-  "enforce_admins": false,
+  "enforce_admins": true,
   "required_pull_request_reviews": { "dismiss_stale_reviews": true, "required_approving_review_count": 0 },
   "required_conversation_resolution": true,
   "restrictions": null,
@@ -79,8 +84,8 @@ if [[ $protect_rc -eq 0 ]]; then
         -q '"\(.required_status_checks.contexts|join(",")) \(.required_conversation_resolution.enabled) \(.enforce_admins.enabled)"' \
         2>/dev/null || true)"
     read -r got_ctx got_conv got_admins <<<"$verify"
-    if [[ ",$got_ctx," == *",$CHECK,"* && "$got_conv" == "true" && "$got_admins" == "false" ]]; then
-        pass "on  (checks=[$got_ctx] conversations_resolved=yes admin_bypass=yes)"
+    if [[ ",$got_ctx," == *",$CHECK,"* && "$got_conv" == "true" && "$got_admins" == "true" ]]; then
+        pass "on  (checks=[$got_ctx] conversations_resolved=yes admins_enforced=yes)"
     else
         bad "applied but verification mismatched — checks=[$got_ctx] conv=$got_conv enforce_admins=$got_admins" >&2
         exit 1
