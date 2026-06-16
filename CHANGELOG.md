@@ -8,6 +8,22 @@ Two axes, kept distinct:
   (currently `4`, schema `cordon-v4.json`). Tracked separately because a project
   can stay on the starter while the contract revs.
 
+## 1.0.0 (2026-06-16)
+
+
+### Features
+
+* local git hooks — pre-commit blocks main, pre-push gates ([#3](https://github.com/joeseverino/cordon-starter/issues/3)) ([80fcd30](https://github.com/joeseverino/cordon-starter/commit/80fcd30456a035e4cba37ebbcc62652995aaf1e2))
+* self-documenting cordon.checks.json + check.sh report() redesign ([#9](https://github.com/joeseverino/cordon-starter/issues/9)) ([a420db9](https://github.com/joeseverino/cordon-starter/commit/a420db9bdc69af3d539bbb74a24abde1f17d391c))
+* single-source verification gate + commit-msg hook ([#4](https://github.com/joeseverino/cordon-starter/issues/4)) ([bcea631](https://github.com/joeseverino/cordon-starter/commit/bcea631970a3c067c3cbe4b98b76bc8080ed753c))
+* validate against cordon itself via $CORDON_HOME (drop vendored schema) ([#5](https://github.com/joeseverino/cordon-starter/issues/5)) ([eca96e1](https://github.com/joeseverino/cordon-starter/commit/eca96e173f3d668425764a304860c816fe18830a))
+* wire scripts/check.sh to cordon's repo-checks runner ([#7](https://github.com/joeseverino/cordon-starter/issues/7)) ([0233388](https://github.com/joeseverino/cordon-starter/commit/023338861e466a0c40d49732edc2c5aa72500430))
+
+
+### Bug Fixes
+
+* self-contained CI + hardened governance, add smoke test ([d3c0ed3](https://github.com/joeseverino/cordon-starter/commit/d3c0ed30ac052adae8a8325f31dd8e1e4157c482))
+
 ## [Unreleased]
 
 ### Changed
