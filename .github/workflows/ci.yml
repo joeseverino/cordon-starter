@@ -6,9 +6,9 @@
 # so this repo needs no cordon.checks.json at all. To change CI for every repo,
 # edit the gate in cordon; to add a check unique to this repo, add a commands[]
 # entry to a cordon.checks.json (or, for a Node audit, a package.json check:*
-# script). Required status check: `CI / cordon / gate`.
+# script). Required status check: `cordon / gate`.
 # See https://github.com/joeseverino/cordon/blob/main/docs/REUSABLE-GATE.md
-name: CI
+name: ci
 
 on:
   push:

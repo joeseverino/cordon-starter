@@ -25,7 +25,7 @@ in the vault. This is the checklist `cordon-starter` exists to satisfy.
 
 - [ ] Never commit to `main`. Branch from a freshly fetched `origin/main`:
       `git fetch origin && git checkout -b <feature> origin/main`.
-- [ ] One feature = one branch name, if multipe feuatures are arising, increasing the branch scope is justified and renaming, reused across repos when it spans them.
+- [ ] One feature = one branch name, if multipe features are arising, increasing the branch scope is justified and renaming, reused across repos when it spans them.
 - [ ] Solo-authored: no `Co-Authored-By`, no AI attribution in commits or PRs.
 - [ ] Hand back only on green CI with zero unresolved PR comments.
 - [ ] Local hooks make it stick even offline: `scripts/setup-hooks.sh` sets
@@ -35,11 +35,14 @@ in the vault. This is the checklist `cordon-starter` exists to satisfy.
 
 ## GitHub governance (`scripts/setup-governance.sh`)
 
-- [ ] `main` protected: required status check `ci` (strict), conversations
-      resolved before merge.
+- [ ] `main` protected: required status check `cordon / gate` (strict),
+      conversations resolved before merge.
 - [ ] `enforce_admins: false` — admin bypass allowed; you review and merge.
 - [ ] Force-push and branch deletion disabled.
 - [ ] Vulnerability alerts + automated security fixes on.
+- [ ] **Allow GitHub Actions to create and approve pull requests** (Settings →
+      Actions → General → Workflow permissions) — required so release-please can
+      open the release PR. The one toggle the release workflow needs.
 
 ## CI (`.github/workflows/ci.yml`)
 
@@ -59,6 +62,20 @@ in the vault. This is the checklist `cordon-starter` exists to satisfy.
 - [ ] Syntax-check matrix across every version the README claims to support.
 - [ ] Run the exact CI command locally before pushing (`scripts/check.sh`);
       a dev-mode pass is not a CI pass.
+
+## Release (`.github/workflows/release.yml`)
+
+- [ ] Releases run through cordon's reusable `cordon-release.yml` (referenced,
+      never vendored) — three lines, the sibling of the `ci.yml` gate call. The
+      check is `cordon / release`.
+- [ ] `release-type` defaults to `simple` (a tracked `version.txt`), so the repo
+      is release-ready as scaffolded. A typed repo overrides it in one line
+      (`with: { release-type: node }` — or python, go, …) and drops `version.txt`.
+- [ ] Versioning is Conventional-Commit driven: every push to `main` keeps one
+      standing `chore(main): release X.Y.Z` PR (computed bump + CHANGELOG);
+      merging it cuts the `vX.Y.Z` tag + GitHub Release. Nothing ships until then.
+- [ ] The one-time per-repo setting is enabled (see GitHub governance above);
+      without it the release PR cannot be opened.
 
 ## Files
 
