@@ -4,8 +4,9 @@
 
 The scaffold every Severino repo begins from. Lean enough to become any kind of
 project, but it ships with the standing cornerstones already wired: the Cordon
-emit-once command-surface contract, a green-gating CI, the branch→PR→review→merge
-workflow, and one command that applies branch protection + repo security.
+emit-once command-surface contract, a green-gating CI, automated releases
+(release-please), the branch→PR→review→merge workflow, and one command that
+applies branch protection + repo security.
 
 It is **not** a generator. It's a small, opinionated tree you copy and prune —
 and the parts that would otherwise drift (the contract JSON, the `describe.sh`
@@ -54,6 +55,8 @@ commit to `main`. See [AGENTS.md](AGENTS.md).
 | `bin/example-tool` | a runnable Cordon-emitting tool; copy its `describe_spec()` |
 | `contract/example-tool.json` | the committed golden contract (emitted, never hand-edited) |
 | `.github/workflows/ci.yml` | three lines calling cordon's reusable gate — the required `cordon / gate` check |
+| `.github/workflows/release.yml` | three lines calling cordon's reusable release — the `cordon / release` check; cuts versions + GitHub Releases via release-please |
+| `version.txt` | the version source for the default `simple` release-type; bump-managed by release-please |
 | `scripts/try.sh` | smoke test — run it to watch the contract work end to end |
 | `scripts/check.sh` | **the gate** — the identical wrapper every cordon repo ships; runs cordon's checks engine over `cordon.checks.json`. Pre-push, CI, and you all run it (`--json` for AI) |
 | `scripts/_lib.sh` | in-repo presentation (palette + `banner`/`step`/`run`); sourced by `try.sh`, no external dep |

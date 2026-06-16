@@ -13,6 +13,10 @@
 #   security (free on private repos):
 #     - vulnerability alerts on
 #     - automated security fixes (Dependabot security updates) on
+#   actions:
+#     - GitHub Actions may create + approve PRs, so release-please can open the
+#       standing release PR (default token perms stay read; workflows escalate
+#       per-job). Without this the release workflow fails at PR creation.
 #
 # Branch protection on a PRIVATE repo needs GitHub Pro; on the free plan it is
 # only available for PUBLIC repos. When that is the blocker this script SKIPS
@@ -114,6 +118,17 @@ if gh api -X PUT "repos/$REPO/automated-security-fixes" >/dev/null 2>&1; then
     pass "automated security fixes: on"
 else
     bad "automated security fixes: FAILED — token likely missing the 'repo' scope" >&2
+    sec_fail=1
+fi
+
+# ── actions: let release-please open the release PR ──────────────────────────
+section "actions"
+actions_payload='{ "default_workflow_permissions": "read", "can_approve_pull_request_reviews": true }'
+if gh api -X PUT "repos/$REPO/actions/permissions/workflow" --input - <<<"$actions_payload" >/dev/null 2>&1 \
+   && [[ "$(gh api "repos/$REPO/actions/permissions/workflow" -q .can_approve_pull_request_reviews 2>/dev/null)" == "true" ]]; then
+    pass "Actions may create + approve PRs (release-please can open the release PR)"
+else
+    bad "Actions PR-create: FAILED — token likely missing admin on the repo" >&2
     sec_fail=1
 fi
 

@@ -1,6 +1,5 @@
 # ─────────────────────────────────────────────────────────────────────────────
-# cordon canonical .gitignore — kept in sync across repos (cordon,
-# cordon-starter, …). One shared body, copied verbatim; no per-repo divergence.
+# cordon .gitignore.
 # ─────────────────────────────────────────────────────────────────────────────
 
 # OS
