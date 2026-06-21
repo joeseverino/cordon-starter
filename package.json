@@ -1,0 +1,12 @@
+{
+  "name": "example-node",
+  "private": true,
+  "type": "module",
+  "description": "Replace me: one line on what this repo does.",
+  "scripts": {
+    "build": "echo 'replace me: a step that writes locally (local_write)'",
+    "deploy": "echo 'replace me: a step that ships (deploy)'",
+    "describe": "node bin/example-node --describe",
+    "describe:write": "node bin/example-node --write"
+  }
+}

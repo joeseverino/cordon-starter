@@ -1,0 +1,34 @@
+{
+  "ok": true,
+  "schema_version": 4,
+  "name": "example-node",
+  "description": "Replace me: one line on what this repo does.",
+  "group": "Starter",
+  "order": 11,
+  "effect": "read",
+  "global_options": [],
+  "positionals": [],
+  "paras": [],
+  "examples": [],
+  "commands": [
+    {
+      "name": "build",
+      "summary": "",
+      "args": [],
+      "effect": "local_write",
+      "paras": [],
+      "examples": [],
+      "delegates": "echo 'replace me: a step that writes locally (local_write)'"
+    },
+    {
+      "name": "deploy",
+      "summary": "",
+      "args": [],
+      "effect": "deploy",
+      "network": true,
+      "paras": [],
+      "examples": [],
+      "delegates": "echo 'replace me: a step that ships (deploy)'"
+    }
+  ]
+}

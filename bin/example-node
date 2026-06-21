@@ -1,0 +1,36 @@
+#!/usr/bin/env node
+// example-node — a runnable starter Node emitter (the introspect-from-scripts track).
+// EMIT ONCE: the surface is DERIVED from package.json `scripts`, not declared here.
+// Copy this file + package.json, rename to bin/<your-repo>, edit your scripts, and
+// list each exposed script's blast radius in `effects` below. The single source of
+// the surface stays package.json; this just projects it to the contract. cordon's
+// gate covers it unchanged: `conformance` validates contract/<tool>.json, `drift`
+// diffs `bin/<tool> --describe` against it.
+//
+//   bin/example-node --describe    print the cordon-v4 contract
+//   bin/example-node --write       (re)write contract/example-node.json
+//   bin/example-node --check       exit 1 if the committed contract is stale
+//
+// Prune on copy: a Node repo keeps this track (+ package.json) and deletes the
+// bash one (bin/example-tool + contract/example-tool.json); a bash repo does the
+// reverse and drops package.json.
+
+import { readFile } from 'node:fs/promises';
+
+const CORDON = process.env.CORDON_HOME ?? `${process.env.HOME}/Documents/Code/Assets/cordon`;
+const { describeScripts, emitMain } = await import(`${CORDON}/emitters/node/index.mjs`);
+const pkg = JSON.parse(await readFile(new URL('../package.json', import.meta.url)));
+
+emitMain(
+  describeScripts(pkg, {
+    name: 'example-node',
+    group: 'Starter',
+    order: 11,
+    // The one fact scripts can't carry — each exposed command's blast radius on
+    // the ladder (read < local_write < vault_write < remote_write < deploy). Also
+    // the allowlist: `describe`/`describe:write` are plumbing, so they stay out.
+    effects: { build: 'local_write', deploy: 'deploy' },
+    network: { deploy: true },
+  }),
+  { url: import.meta.url }, // roots the contract at ../contract/example-node.json
+);

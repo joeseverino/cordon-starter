@@ -32,11 +32,14 @@ cd "$PROJECTS_HOME/<repo>"
 rm -rf .git && git init -b main          # fresh history
 scripts/setup-hooks.sh                    # local guardrails + commit template — works offline
 
-# make it yours
-mv bin/example-tool bin/<repo>           # rename the tool, rewrite describe_spec
+# make it yours — keep ONE emitter track, prune the other
+#   bash repo:  mv bin/example-tool bin/<repo>   ; rm bin/example-node contract/example-node.json
+#   node repo:  mv bin/example-node bin/<repo>   ; rm bin/example-tool contract/example-tool.json
+mv bin/example-tool bin/<repo>           # then rewrite its describe_spec / typed spec
 $EDITOR AGENTS.md README.md              # delete what you don't need
+rm -f contract/example-*.json            # drop the unused track's golden(s)
 
-bin/<repo> --describe > contract/<repo>.json   # generate the golden contract
+bin/<repo> --describe > contract/<repo>.json   # generate the golden contract (either track)
 scripts/check.sh                          # shellcheck + drift + conformance
 
 git add -A && git commit -m "Initial commit"
@@ -52,8 +55,9 @@ commit to `main`. See [AGENTS.md](AGENTS.md).
 | path | what it is |
 |---|---|
 | `AGENTS.md` (+ `CLAUDE.md` symlink) | the cornerstone playbook — read first |
-| `bin/example-tool` | a runnable Cordon-emitting tool; copy its `describe_spec()` |
-| `contract/example-tool.json` | the committed golden contract (emitted, never hand-edited) |
+| `bin/example-tool` | the **bash** track: a runnable Cordon-emitting tool; copy its `describe_spec()` (declare-a-DSL) |
+| `bin/example-node` + `package.json` | the **Node** track: a one-file emitter that *derives* the surface from `package.json` scripts (via cordon's `emitters/node`) and declares only each command's blast radius; copy both for a Node/TS repo |
+| `contract/example-tool.json`, `contract/example-node.json` | the committed golden contracts (emitted, never hand-edited) |
 | `.github/workflows/ci.yml` | three lines calling cordon's reusable gate — the required `cordon / gate` check |
 | `.github/workflows/release.yml` | three lines calling cordon's reusable release — the `cordon / release` check; cuts versions + GitHub Releases via release-please |
 | `version.txt` | the version source for the default `simple` release-type; bump-managed by release-please |
@@ -124,6 +128,21 @@ Replace me: one line on what this tool does.
 
 - `example-tool widget` — acts on 'widget'
 - `example-tool -n widget` — dry run
+
+---
+
+### `example-node`
+
+effect: `read`
+
+Replace me: one line on what this repo does.
+
+**Commands**
+
+| command | effect | summary |
+|---|---|---|
+| `build` | `local_write` |  |
+| `deploy` | `deploy` |  |
 
 <!-- END GENERATED: cli-reference -->
 
