@@ -17,14 +17,10 @@ machinery) are *sourced from your toolchain*, not vendored.
 Quickest path: click **[Use this template](https://github.com/joeseverino/cordon-starter/generate)**
 on GitHub for a fresh repo with clean history. Or copy the tree locally and prune:
 
-First machine only — make cordon reachable (clones it + sets `CORDON_HOME` in
-`~/.zshrc`, with a backup; skip if you already have it):
-
-```sh
-curl -fsSL https://raw.githubusercontent.com/joeseverino/cordon/main/install.sh | bash
-```
-
-Then:
+No manual cordon setup needed — the first `scripts/check.sh` run fetches cordon
+once if this machine doesn't have it (clones it + sets `CORDON_HOME` in
+`~/.zshrc`, with a backup). To do it up front instead, run
+`scripts/ensure-cordon.sh`.
 
 ```sh
 cp -R "$PROJECTS_HOME/cordon-starter" "$PROJECTS_HOME/<repo>"
