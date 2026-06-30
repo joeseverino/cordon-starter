@@ -8,6 +8,15 @@ Two axes, kept distinct:
   (currently `4`, schema `cordon-v4.json`). Tracked separately because a project
   can stay on the starter while the contract revs.
 
+## [1.1.0](https://github.com/joeseverino/cordon-starter/compare/v1.0.0...v1.1.0) (2026-06-30)
+
+
+### Features
+
+* add the Node emitter track (introspect package.json scripts) ([#21](https://github.com/joeseverino/cordon-starter/issues/21)) ([e5e89f1](https://github.com/joeseverino/cordon-starter/commit/e5e89f1ced9ff56801c84e53adf0bba51703d41d))
+* add the Node emitter track (introspect package.json scripts) ([#23](https://github.com/joeseverino/cordon-starter/issues/23)) ([24bf7a3](https://github.com/joeseverino/cordon-starter/commit/24bf7a39ebb1c79f327cbf2bc3bdcbef8a691537))
+* **setup:** self-healing cordon bootstrap, no manual env wiring ([#25](https://github.com/joeseverino/cordon-starter/issues/25)) ([9d62641](https://github.com/joeseverino/cordon-starter/commit/9d62641c9a17d13d79e836da6847f1be70c1a444))
+
 ## 1.0.0 (2026-06-16)
 
 
