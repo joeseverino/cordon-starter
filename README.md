@@ -17,10 +17,10 @@ machinery) are *sourced from your toolchain*, not vendored.
 Quickest path: click **[Use this template](https://github.com/joeseverino/cordon-starter/generate)**
 on GitHub for a fresh repo with clean history. Or copy the tree locally and prune:
 
-No manual cordon setup needed — the first `scripts/check.sh` run fetches cordon
-once if this machine doesn't have it (clones it + sets `CORDON_HOME` in
-`~/.zshrc`, with a backup). To do it up front instead, run
-`scripts/ensure-cordon.sh`.
+No manual cordon setup needed — `scripts/check.sh` resolves the engine from a
+local cordon checkout, the repo's pinned `cordon-spec` devDependency, or the
+published npm package via `npx` — in that order. A fresh machine runs the gate
+with no download step and nothing written to `~/.zshrc`.
 
 ```sh
 cp -R "$PROJECTS_HOME/cordon-starter" "$PROJECTS_HOME/<repo>"
