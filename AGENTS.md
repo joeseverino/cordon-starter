@@ -2,7 +2,11 @@
 
 This repo was started from **cordon-starter** — the canonical scaffold every
 Severino repo begins from. The rules below are the standing cornerstones. They
-override anything an older repo's docs imply.
+override anything an older repo's docs imply. The method behind them — the
+framework principles plus the fresh-agent build brief — is
+[cordon's `framework/`](https://github.com/joeseverino/cordon/tree/main/framework)
+(`$CORDON_HOME/framework/` locally); this scaffold is that framework's
+executable leg.
 
 > Rename the placeholders (`<repo>`, the example tool) and delete what a given
 > project doesn't need. The cornerstones stay.
