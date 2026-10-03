@@ -8,5 +8,12 @@
     "deploy": "echo 'replace me: a step that ships (deploy)'",
     "describe": "node bin/example-node --describe",
     "describe:write": "node bin/example-node --write"
+  },
+  "engines": {
+    "node": ">=24.21.0"
+  },
+  "packageManager": "npm@11.19.0",
+  "devDependencies": {
+    "cordon-spec": "2.0.0"
   }
 }
