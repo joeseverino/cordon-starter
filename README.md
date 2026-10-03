@@ -17,10 +17,9 @@ machinery) are *sourced from your toolchain*, not vendored.
 Quickest path: click **[Use this template](https://github.com/joeseverino/cordon-starter/generate)**
 on GitHub for a fresh repo with clean history. Or copy the tree locally and prune:
 
-No manual cordon setup needed — `scripts/check.sh` resolves the engine from a
-local cordon checkout, the repo's pinned `cordon-spec` devDependency, or the
-published npm package via `npx` — in that order. A fresh machine runs the gate
-with no download step and nothing written to `~/.zshrc`.
+No manual cordon setup needed: `scripts/check.sh` runs the published engine
+(`npx --yes --package cordon-spec@2 cordon-checks --root .`), the same one CI
+runs. A fresh machine needs only Node 24.
 
 ```sh
 cp -R "$PROJECTS_HOME/cordon-starter" "$PROJECTS_HOME/<repo>"
@@ -52,13 +51,13 @@ commit to `main`. See [AGENTS.md](AGENTS.md).
 |---|---|
 | `AGENTS.md` (+ `CLAUDE.md` symlink) | the cornerstone playbook — read first |
 | `bin/example-tool` | the **bash** track: a runnable Cordon-emitting tool; copy its `describe_spec()` (declare-a-DSL) |
-| `bin/example-node` + `package.json` | the **Node** track: a one-file emitter that *derives* the surface from `package.json` scripts (via cordon's `emitters/node`) and declares only each command's blast radius; copy both for a Node/TS repo |
+| `bin/example-node` + `package.json` | the **Node** track: a one-file emitter that *derives* the surface from `package.json` scripts (via `cordon-spec/emit`) and declares only each command's blast radius; copy both for a Node/TS repo |
 | `contract/example-tool.json`, `contract/example-node.json` | the committed golden contracts (emitted, never hand-edited) |
 | `.github/workflows/ci.yml` | three lines calling cordon's reusable gate — the required `cordon / gate` check |
 | `.github/workflows/release.yml` | three lines calling cordon's reusable release — the `cordon / release` check; cuts versions + GitHub Releases via release-please |
 | `version.txt` | the version source for the default `simple` release-type; bump-managed by release-please |
 | `scripts/try.sh` | smoke test — run it to watch the contract work end to end |
-| `scripts/check.sh` | **the gate** — the identical wrapper every cordon repo ships; runs cordon's checks engine over `cordon.checks.json`. Pre-push, CI, and you all run it (`--json` for AI) |
+| `scripts/check.sh` | **the gate**: the one-line wrapper every cordon repo ships around cordon's checks engine. Pre-push, CI, and you all run it (`--json` for AI) |
 | `scripts/_lib.sh` | in-repo presentation (palette + `banner`/`step`/`run`); sourced by `try.sh`, no external dep |
 | `scripts/gen-readme.mjs` | renders the README CLI reference from `contract/*.json` — the README *is* a render of the contract (zero deps, drift-gated) |
 | `.githooks/` + `scripts/setup-hooks.sh` | local guardrails: `pre-commit` blocks `main`, `commit-msg` blocks AI attribution, `pre-push` runs the gate, and it wires `commit.template` |
