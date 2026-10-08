@@ -8,6 +8,13 @@ Two axes, kept distinct:
   (currently `4`, schema `cordon-v4.json`). Tracked separately because a project
   can stay on the starter while the contract revs.
 
+## [1.2.0](https://github.com/joeseverino/cordon-starter/compare/v1.1.0...v1.2.0) (2026-10-08)
+
+
+### Features
+
+* resolve the gate engine from npm — retire the ensure-cordon download ([#26](https://github.com/joeseverino/cordon-starter/issues/26)) ([2313d47](https://github.com/joeseverino/cordon-starter/commit/2313d4748b0cdd6553db56220ae6f0f4bd607a70))
+
 ## [1.1.0](https://github.com/joeseverino/cordon-starter/compare/v1.0.0...v1.1.0) (2026-06-30)
 
 
