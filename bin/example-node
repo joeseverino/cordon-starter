@@ -15,10 +15,8 @@
 // bash one (bin/example-tool + contract/example-tool.json); a bash repo does the
 // reverse and drops package.json.
 
-import { readFile } from 'node:fs/promises';
 import { describeScripts, emitMain } from 'cordon-spec/emit';
-
-const pkg = JSON.parse(await readFile(new URL('../package.json', import.meta.url)));
+import pkg from '../package.json' with { type: 'json' };
 
 emitMain(
   describeScripts(pkg, {

@@ -10,10 +10,10 @@
 // installed and runs in CI as-is. Deterministic output (contracts sorted by
 // `order` then name) so the gate can diff it.
 import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
+import { join } from 'node:path';
+import { parseArgs } from 'node:util';
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+const ROOT = join(import.meta.dirname, '..');
 const README = join(ROOT, 'README.md');
 const CONTRACTS = join(ROOT, 'contract');
 const BEGIN = '<!-- BEGIN GENERATED: cli-reference (scripts/gen-readme.mjs — do not edit by hand) -->';
@@ -81,7 +81,7 @@ function render() {
   return contracts.map(renderTool).join('\n\n---\n\n');
 }
 
-const check = process.argv.includes('--check');
+const { values: { check = false } } = parseArgs({ options: { check: { type: 'boolean' } }, strict: true });
 const md = readFileSync(README, 'utf8');
 const i = md.indexOf(BEGIN);
 const j = md.indexOf(END);
